@@ -51,35 +51,52 @@ COORDINATES_TOPIC = 'coordinates'
 
 # producer = KafkaProducer(bootstrap_servers=KAFKA_BROKER, value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 
-def generate_items(category):
-    items = {
-        'Pizza': ['Margherita', 'Pepperoni', 'BBQ Chicken', 'Veggie', 'Hawaiian'],
-        'Burger': ['Cheeseburger', 'Veggie Burger', 'Grilled Chicken Burger', 'Bacon Burger', 'Portobello Mushroom Burger'],
-        'Sushi': ['California Roll', 'Spicy Tuna Roll', 'Philadelphia Roll', 'Dragon Roll', 'Rainbow Roll'],
-        'Indian': ['Butter Chicken', 'Paneer Tikka', 'Chana Masala', 'Chicken Biryani', 'Palak Paneer'],
-        'Chinese': ['Kung Pao Chicken', 'Fried Rice', 'Chow Mein', 'Sweet and Sour Pork', 'Mapo Tofu']
-    }
-    return [fake.random_element(items[category]) for _ in range(randint(1, 4))]
-
 def generate_order():
-    category = fake.random_element(elements=('Pizza', 'Burger', 'Sushi', 'Indian', 'Chinese'))
-    items = generate_items(category)
+    items = []
+    for _ in range(randint(1, 3)):
+        item_name = fake.random_element(elements=('Margherita', 'Pepperoni', 'BBQ Chicken', 'Veggie', 'Hawaiian',
+                                                   'Cheeseburger', 'Veggie Burger', 'Grilled Chicken Burger', 'Bacon Burger', 'Portobello Mushroom Burger',
+                                                   'California Roll', 'Spicy Tuna Roll', 'Philadelphia Roll', 'Dragon Roll', 'Rainbow Roll',
+                                                   'Butter Chicken', 'Paneer Tikka', 'Chana Masala', 'Chicken Biryani', 'Palak Paneer',
+                                                   'Kung Pao Chicken', 'Fried Rice', 'Chow Mein', 'Sweet and Sour Pork', 'Mapo Tofu'))
+        if item_name in ('Margherita', 'Pepperoni', 'BBQ Chicken', 'Veggie', 'Hawaiian'):
+            category = 'Pizza'
+        elif item_name in ('Cheeseburger', 'Veggie Burger', 'Grilled Chicken Burger', 'Bacon Burger', 'Portobello Mushroom Burger'):
+            category = 'Burger'
+        elif item_name in ('California Roll', 'Spicy Tuna Roll', 'Philadelphia Roll', 'Dragon Roll', 'Rainbow Roll'):
+            category = 'Sushi'
+        elif item_name in ('Butter Chicken', 'Paneer Tikka', 'Chana Masala', 'Chicken Biryani', 'Palak Paneer'):
+            category = 'Indian'
+        else:
+            category = 'Chinese'
+        price = round(fake.random_number(digits=3, fix_len=True), 2)
+        items.append({"category": category, "name": item_name, "price": price})
+
     order = {
         "order_id": fake.uuid4(),
         "customer_id": fake.uuid4(),
         "hotel_id": fake.uuid4(),
-        "category": category,
-        "items": [{"name": item, "price": round(fake.random_number(digits=3, fix_len=True), 2)} for item in items],
-        "timestamp": int(time.time())
+        "items": items,
+        "timestamp": int(time.time()),
+        "discountPrice": round(fake.random_number(digits=3, fix_len=True), 2),
+        "hotelName": fake.company(),
+        "hotelId": fake.uuid4(),
+        "createdAt": fake.date_time_this_month(before_now=True, after_now=False, tzinfo=None),
+        "payment": fake.random_element(elements=('cod', 'online', 'wallet'))
     }
     return order
 
 
 def generate_order_update(order_id):
+    delivery_boy_name = fake.name()
+    delivery_boy_phone_number = fake.phone_number()
+
     update = {
         "order_id": order_id,
         "status": fake.random_element(elements=('order-confirm', 'cooking', 'waiting for captain', 'order-cancelled', 'shipped', 'delivered')),
-        "timestamp": int(time.time())
+        "timestamp": int(time.time()),
+        "deliveryBoyName": delivery_boy_name,
+        "deliveryBoyPhoneNumber": delivery_boy_phone_number
     }
     return update
 
