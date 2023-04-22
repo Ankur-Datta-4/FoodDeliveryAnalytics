@@ -1,43 +1,7 @@
-"""
-    Order:{
-        orderId,
-        userId,
-        items:[
-            {
-                itemId,
-                priceItem,
-                categoryName,
-                itemName,
-                quantity
-            }
-        ],
-        netPrice,
-        discountPrice,
-        hotelName,
-        hotelId,
-        createdAt,
-         status:  
-        payment: 'cod' | 'online' | 'wallet', 
-    }
-    
-    orderUpdate:{
-        orderId,
-        status,
-        deliveryBoyName,
-        deliveryBoyPhone
-    }
-   
-   
-    
-    
-"""
-
-
-
 import json
 import time
 from random import randint, uniform, choice
-# from kafka import KafkaProducer
+from kafka import KafkaProducer
 from faker import Faker
 import math
 
@@ -45,11 +9,11 @@ fake = Faker()
 
 # Kafka configuration
 KAFKA_BROKER = 'localhost:9092'
-ORDER_TOPIC = 'orders'
-ORDER_UPDATE_TOPIC = 'order_updates'
-COORDINATES_TOPIC = 'coordinates'
+NEW_ORDER_TOPIC="NEW_ORDER"
+ORDER_UPDATE_TOPIC = "ORDER_UPDATE"
+# COORDINATES_TOPIC = 'coordinates'
 
-# producer = KafkaProducer(bootstrap_servers=KAFKA_BROKER, value_serializer=lambda v: json.dumps(v).encode('utf-8'))
+producer = KafkaProducer(bootstrap_servers=[KAFKA_BROKER], value_serializer=lambda v: json.dumps(v).encode('utf-8'))
 generatedOrders=dict()
 # outForDeliveryOrders=dict()
 def generate_order():
@@ -181,29 +145,26 @@ def generate_coordinates(customer_latitude, customer_longitude, prev_latitude=No
 prev_latitude = fake.latitude()
 prev_longitude = fake.longitude()
 
-while True:
-    # Produce messages to Kafka topics
+def publish_new_order():
     order = generate_order()
-    print ("order" , order)
+    producer.send(NEW_ORDER_TOPIC, json.dumps(order).encode('utf-8'))
 
+def publish_order_update():
     order_update = generate_order_update()
     if(order_update is not None):
-        print("ORDER_UPDATE_TOPIC", order_update)
+        producer.send(ORDER_UPDATE_TOPIC, json.dumps(order_update).encode('utf-8'))
 
-    order_update = generate_order_update()
-    if(order_update is not None):
-        print("ORDER_UPDATE_TOPIC", order_update)
-        
-    order_update = generate_order_update()
-    if(order_update is not None):
-        print("ORDER_UPDATE_TOPIC", order_update)
-    # customer_latitude = fake.latitude()
-    # customer_longitude = fake.longitude()
 
-    # # Generate the next coordinate and update the previous coordinates
-    # coordinates, prev_latitude, prev_longitude = generate_coordinates(customer_latitude, customer_longitude, prev_latitude, prev_longitude)
-    # print("COORDINATES_TOPIC", coordinates)
+if __name__ =="__main__":
+    try:
+        while True:
+            publish_new_order()
+            publish_order_update()
+            publish_order_update()
+            publish_order_update()
+            time.sleep(randint(1,5))
+    except KeyboardInterrupt:
+    # on keyboard interrupt, close the producer
+        producer.close()
 
-    # Sleep for a few seconds
-    time.sleep(randint(1, 5))
 
