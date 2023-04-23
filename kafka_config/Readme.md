@@ -1,9 +1,8 @@
 ## Kafka-config
 
-To build:
+To run:
+`docker-compose up`
 
-`docker build -t kafka-container .`
-
-To run as container:
-
-`docker run --name kafka -p 9092:9092 kafka-container`
+Then setup topics:
+`kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic ORDER_UPDATE`
+`kafka-topics.sh --create --zookeeper zookeeper:2181 --replication-factor 1 --partitions 1 --topic NEW_ORDER`

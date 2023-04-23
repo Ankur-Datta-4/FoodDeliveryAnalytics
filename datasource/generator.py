@@ -4,6 +4,7 @@ from random import randint, uniform, choice
 from kafka import KafkaProducer
 from faker import Faker
 import math
+import datetime
 
 fake = Faker()
 
@@ -47,10 +48,9 @@ def generate_order():
         "hotelId": hotelId,
         "hotelName": hotelName,
         "items": items,
-        "timestamp": int(time.time()),
         "netPrice":netPrice,
         "discountPrice": round(uniform(0, netPrice/2), 2),
-        "createdAt": fake.date_time_this_month(before_now=True, after_now=False, tzinfo=None),
+        "createdAt": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "payment": fake.random_element(elements=('cod', 'online', 'wallet'))
     }
     
@@ -147,12 +147,14 @@ prev_longitude = fake.longitude()
 
 def publish_new_order():
     order = generate_order()
-    producer.send(NEW_ORDER_TOPIC, json.dumps(order).encode('utf-8'))
+    producer.send(NEW_ORDER_TOPIC, order)
+    print("Published order: ", order)
 
 def publish_order_update():
     order_update = generate_order_update()
     if(order_update is not None):
-        producer.send(ORDER_UPDATE_TOPIC, json.dumps(order_update).encode('utf-8'))
+        producer.send(ORDER_UPDATE_TOPIC, order_update)
+        print("Published order update: ", order_update)
 
 
 if __name__ =="__main__":
