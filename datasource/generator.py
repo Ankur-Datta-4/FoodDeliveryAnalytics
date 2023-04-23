@@ -54,7 +54,7 @@ def generate_order():
         "payment": fake.random_element(elements=('cod', 'online', 'wallet'))
     }
     
-    generatedOrders[order['orderId']]={"orderId":order['orderId'],"status":"pending-confirmation"}
+    generatedOrders[order['orderId']]={"orderId":order['orderId'],"status":"pending-confirmation", "hotelId":hotelId, "hotelName":hotelName, "customerId":order['customerId']}
     return order
 
 
