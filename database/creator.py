@@ -50,8 +50,7 @@ cur.execute("""
     CREATE TABLE IF NOT EXISTS Order_Items (
          orderId VARCHAR(255) NOT NULL REFERENCES Orders(orderId),
   itemId INTEGER NOT NULL REFERENCES Items(itemId),
-  quantity INTEGER NOT NULL,
-  PRIMARY KEY (orderId, itemId)
+  quantity INTEGER NOT NULL
     )
 """)
 conn.commit()
