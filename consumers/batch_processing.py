@@ -61,11 +61,6 @@ max_revenue_per_day = grouped_by_day.agg(max(col('netPrice')).alias('max_revenue
 
 # Compute the most sold category per day
 most_sold_category_per_day = grouped_by_day.agg(first('category', True).alias('most_sold_category'))
-
-# Compute segmentation of users
-# Note: Please specify the criteria for user segmentation.
-
-# Show the results
 total_orders_per_day.show()
 total_order_value_per_day.show()
 max_revenue_per_day.show()
