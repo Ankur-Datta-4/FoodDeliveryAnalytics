@@ -97,7 +97,7 @@ most_selling_category_query=most_selling_category \
 
 max_order_value = df \
     .withWatermark("createdAt", "60 seconds") \
-    .groupBy(window("createdAt", "60 seconds")) \
+    .groupBy(window("createdAt", "60 seconds","10 seconds")) \
     .agg(max("netPrice").alias("max_net_price"))
 
 max_order_value_query=max_order_value \
@@ -109,39 +109,39 @@ max_order_value_query=max_order_value \
 
 
 ##--------------------------------------------------------------------------
-max_order_hotel = df \
-    .withColumn("totalOrderValue", col("netPrice") - col("discountPrice")) \
-    .groupBy("hotelName") \
-    .agg(count("orderId").alias("orderCount"), sum("totalOrderValue").alias("totalOrderValue"))
+# max_order_hotel = df \
+#     .withColumn("totalOrderValue", col("netPrice") - col("discountPrice")) \
+#     .groupBy("hotelName") \
+#     .agg(count("orderId").alias("orderCount"), sum("totalOrderValue").alias("totalOrderValue"))
 
 
 
 
-max_order_value_hotel_name = max_order_hotel \
-    .orderBy(desc("totalOrderValue")) \
-    .limit(1) \
-    .select("hotelName")
+# max_order_value_hotel_name = max_order_hotel \
+#     .orderBy(desc("totalOrderValue")) \
+#     .limit(1) \
+#     .select("hotelName")
     
-max_order_value_hotel_name_query = max_order_value_hotel_name \
-    .writeStream \
-    .outputMode("complete") \
-    .format("console") \
-    .option("truncate", "false") \
-    .start()
+# max_order_value_hotel_name_query = max_order_value_hotel_name \
+#     .writeStream \
+#     .outputMode("complete") \
+#     .format("console") \
+#     .option("truncate", "false") \
+#     .start()
 
 
 
-max_order_hotel_name = max_order_hotel \
-    .orderBy(desc("orderCount")) \
-    .limit(1) \
-    .select("hotelName")
+# max_order_hotel_name = max_order_hotel \
+#     .orderBy(desc("orderCount")) \
+#     .limit(1) \
+#     .select("hotelName")
 
-max_order_hotel_name_query = max_order_hotel_name \
-    .writeStream \
-    .outputMode("complete") \
-    .format("console") \
-    .option("truncate", "false") \
-    .start()
+# max_order_hotel_name_query = max_order_hotel_name \
+#     .writeStream \
+#     .outputMode("complete") \
+#     .format("console") \
+#     .option("truncate", "false") \
+#     .start()
 
 
 
@@ -152,20 +152,22 @@ max_order_hotel_name_query = max_order_hotel_name \
 ###-------------------------------------
 
 print("Top selling Item")
+# hola = top_selling_item_query.lastProgress['timestamp']
+# print("here is the time ," , hola)
 top_selling_item_query.awaitTermination()
 
 
 print("Most Selling Item Category")
 most_selling_category_query.awaitTermination()
 
-print("Maximum order value till now")
+# print("Maximum order value till now")
 
 max_order_value_query.awaitTermination()
 
-print("Hotel With Maximum order-value excluding discount")
+# print("Hotel With Maximum order-value excluding discount")
 
-max_order_value_hotel_name_query.awaitTermination()
+# max_order_value_hotel_name_query.awaitTermination()
 
-print("Hotel WIth Maximum orders")
-max_order_hotel_name_query.awaitTermination()
+# print("Hotel WIth Maximum orders")
+# max_order_hotel_name_query.awaitTermination()
 
